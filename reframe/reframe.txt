@@ -1,0 +1,7 @@
+"Re: Framework"
+{
+	"base" 			"sandbox"
+	"title" 		"Re: Framework"
+	"author" 		"MrMono"
+	"menusystem"	"1"
+}
