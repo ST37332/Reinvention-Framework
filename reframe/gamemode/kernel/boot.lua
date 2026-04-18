@@ -1,6 +1,6 @@
-include('base/loader.lua')
+include('base/util.lua')
 if SERVER then
-    AddCSLuaFile('base/loader.lua')
+    AddCSLuaFile('base/util.lua')
 end
 
 
