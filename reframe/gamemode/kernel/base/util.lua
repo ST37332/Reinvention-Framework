@@ -10,27 +10,32 @@ local addCSLua = AddCSLuaFile
 local SERVER = SERVER
 local CLIENT = CLIENT
 
-local MAGIC_CHARACTERS = "([%(%)%.%%%+%-%*%?%[%^%$])";
+
+
+function re._kernel:UnpackColor(color)
+	return color.r, color.g, color.b, color.a
+end
+
+local MAGIC_CHARACTERS = "([%(%)%.%%%+%-%*%?%[%^%$])"
 
 function re._kernel:Replace(text, find, replace)
-	return ( text:gsub(find:gsub(MAGIC_CHARACTERS, "%%%1"), replace) );
-end;
-
+	return ( text:gsub(find:gsub(MAGIC_CHARACTERS, "%%%1"), replace) )
+end
 
 function re._kernel:NewMetaTable(base)
-	local object = {};
+	local object = {}
 	
-	setmetatable(object, base);
+	setmetatable(object, base)
 	
-	base.__index = base;
+	base.__index = base
 	
-	return object;
-end;
+	return object
+end
 
-hook.RECall = hook.Call;
+hook.RECall = hook.Call
 
-local CurTime = CurTime;
-local hook = hook;
+local CurTime = CurTime
+local hook = hook
 
 
 function re._kernel:IsHookCached(name)
@@ -75,71 +80,71 @@ function re._kernel:Call(name, ...)
 end
 
 function hook.Call(name, gamemode, ...)
-	re.Client = LocalPlayer();
+	re.Client = LocalPlayer()
 	
 	if (!gamemode) then
-		gamemode = re;
-	end;
+		gamemode = re
+	end
 	
-	local hookCall = hook.RECall;
-	local value = re._kernel:CallCachedHook(name, nil, ...);
+	local hookCall = hook.RECall
+	local value = re._kernel:CallCachedHook(name, nil, ...)
 	
 	if (value == nil) then
-		return hookCall(name, gamemode, ...);
+		return hookCall(name, gamemode, ...)
 	else
-		return value;
-	end;
-end;
+		return value
+	end
+end
 
 
 function re._kernel:CallTimerThink(curTime)
 	for k, v in pairs(self.Timers) do
 		if (!v.paused) then
 			if (curTime >= v.nextCall) then
-				local success, value = pcall( v.Callback, unpack(v.arguments) );
+				local success, value = pcall( v.Callback, unpack(v.arguments) )
 				
 				if (!success) then
-					ErrorNoHalt("RE -> the "..tostring(k).." timer has failed to run.");
-					ErrorNoHalt(value);
-				end;
+					ErrorNoHalt("RE -> the "..tostring(k).." timer has failed to run.")
+					ErrorNoHalt(value)
+				end
 				
-				v.nextCall = curTime + v.delay;
-				v.calls = v.calls + 1;
+				v.nextCall = curTime + v.delay
+				v.calls = v.calls + 1
 				
 				if (v.calls == v.repetitions) then
-					self.Timers[k] = nil;
-				end;
-			end;
-		end;
-	end;
-end;
+					self.Timers[k] = nil
+				end
+			end
+		end
+	end
+end
 
 -- A function to get whether a timer exists.
 function re._kernel:TimerExists(name)
-	return self.Timers[name];
-end;
+	return self.Timers[name]
+end
 
 -- A function to start a timer.
 function re._kernel:StartTimer(name)
 	if (self.Timers[name] and self.Timers[name].paused) then
-		self.Timers[name].nextCall = CurTime() + self.Timers[name].timeLeft;
-		self.Timers[name].paused = nil;
-	end;
-end;
+		self.Timers[name].nextCall = CurTime() + self.Timers[name].timeLeft
+		self.Timers[name].paused = nil
+	end
+end
 
 -- A function to pause a timer.
 function re._kernel:PauseTimer(name)
 	if (self.Timers[name] and !self.Timers[name].paused) then
-		self.Timers[name].timeLeft = self.Timers[name].nextCall - CurTime();
-		self.Timers[name].paused = true;
-	end;
-end;
+		self.Timers[name].timeLeft = self.Timers[name].nextCall - CurTime()
+		self.Timers[name].paused = true
+	end
+end
 
 
 -- A function to destroy a timer.
 function re._kernel:DestroyTimer(name)
-	self.Timers[name] = nil;
-end;
+	self.Timers[name] = nil
+end
 
 -- A function to create a timer.
 function re._kernel:CreateTimer(name, delay, repetitions, Callback, ...)
@@ -150,8 +155,8 @@ function re._kernel:CreateTimer(name, delay, repetitions, Callback, ...)
 		Callback = Callback,
 		arguments = {...},
 		repetitions = repetitions
-	};
-end;
+	}
+end
 
 --[[
  Includes a Lua file with automatic scope detection (server/client/shared) based on the name prefix.
@@ -292,5 +297,77 @@ function re._kernel:GetDefaultClassValue(class)
 		["Bool"] = false
 	}
 	
-	return convertTable[class];
+	return convertTable[class]
+end
+
+if SERVER then
+    function re._kernel:StartDataStream(player, name, data)
+		if (type(player) != "table") then
+			if (!player) then
+				player = _player.GetAll();
+			else
+				player = {player};
+			end;
+		end;
+		
+		local encodedData = glon.encode(data);
+		local splitTable = self:SplitString(encodedData, 128);
+		local players = RecipientFilter();
+		
+		for k, v in pairs(player) do
+			if (type(v) == "Player") then
+				players:AddPlayer(v);
+			elseif (type(k) == "Player") then
+				players:AddPlayer(k);
+			end;
+		end;
+		
+		if (#splitTable > 0) then
+			umsg.Start("aura_dsStart", players);
+				umsg.String(name);
+				umsg.String( splitTable[1] );
+				umsg.Short(#splitTable);
+			umsg.End();
+			
+			if (#splitTable > 1) then
+				for k, v in ipairs(splitTable) do
+					if (k > 1) then
+						umsg.Start("aura_dsData", players);
+							umsg.String(v);
+							umsg.Short(k);
+						umsg.End();
+					end;
+				end;
+			end;
+		end;
+	end;
+    
+	function re._kernel:ServerLog(text)
+		ServerLog(text.."\n")
+		
+		if ( game.IsDedicated() ) then
+			print(text)
+		end
+	end
+
+	function re._kernel:PrintLog(logType, text)
+		local recipientFilter = RecipientFilter()
+		
+		for k, v in ipairs( player.GetAll() ) do
+			if (v:GetInfoNum("aura_showlog", 0) == 1) then
+				if ( self.player:IsAdmin(v) ) then
+					recipientFilter:AddPlayer(v)
+				end
+			end
+		end
+		
+		umsg.Start("aura_Log", recipientFilter)
+			umsg.Short(logType or 5)
+			umsg.String(text)
+		umsg.End()
+		
+		if ( AURA_CONVAR_LOG:GetInt() == 1 and game.IsDedicated() ) then
+			self:ServerLog(text)
+		end
+	end
 end

@@ -1,8 +1,8 @@
 include("sh_init.lua")
 
 function ENT:HUDPaintTargetID(x, y, alpha)
-	local colorTargetID = openAura.option:GetColor("target_id")
-	local colorWhite = openAura.option:GetColor("white")
+	local colorTargetID = re._kernel:GetColor("target_id")
+	local colorWhite = re._kernel:GetColor("white")
 	local index = self:GetDTInt("index")
 	
 	if (index != 0) then
