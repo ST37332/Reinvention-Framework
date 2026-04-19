@@ -241,7 +241,7 @@ if (SERVER) then
 						key = self.indexes[key];
 					end;
 					
-					openAura:StartDataStream( player, "Config", { [key] = value } );
+					re._kernel:StartDataStream( player, "Config", { [key] = value } );
 				end;
 			end;
 		else
@@ -259,7 +259,7 @@ if (SERVER) then
 				end;
 			end;
 			
-			openAura:StartDataStream(player, "Config", config);
+			re._kernel:StartDataStream(player, "Config", config);
 		end;
 	end;
 
@@ -472,7 +472,7 @@ else
 			end;
 			
 			if ( IsValid(re.Client) and !re.config:HasSentInitialized() ) then
-				openAura:StartDataStream("ConfigInitialized", true);
+				re._kernel:StartDataStream("ConfigInitialized", true);
 				
 				re.config:SetSentInitialized(true);
 			end;

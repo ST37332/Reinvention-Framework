@@ -4,6 +4,7 @@ if SERVER then
 end
 
 
+re._kernel.IncludeDir("libraries/thirdparty")
 re._kernel.IncludeDir("libraries")
 re._kernel.Include("base/cl_draws.lua")
 re.Locale:AutoInit()

@@ -83,7 +83,7 @@ function re.player:CreateGear(player, class, itemTable)
 		player.gearTable[class]:Spawn();
 		
 		if (itemTable.attachmentColor) then
-			player.gearTable[class]:SetColor( openAura:UnpackColor(itemTable.attachmentColor) );
+			player.gearTable[class]:SetColor( re._kernel:UnpackColor(itemTable.attachmentColor) );
 		end;
 		
 		if (itemTable.attachmentMaterial) then
@@ -114,7 +114,7 @@ end;
 
 -- A function to get whether a player can hear another player.
 function re.player:CanHearPlayer(player, target, allowance)
-	if ( openAura.config:Get("messages_must_see_player"):Get() ) then
+	if ( re.config:Get("messages_must_see_player"):Get() ) then
 		return self:CanSeePlayer(player, target, (allowance or 0.5), true);
 	else
 		return true;
@@ -146,7 +146,7 @@ function re.player:SetAction(player, action, duration, priority, Callback)
 	local currentAction = self:GetAction(player);
 	
 	if (type(action) != "string" or action == "") then
-		openAura:DestroyTimer( "action_"..player:UniqueID() );
+		re._kernel:DestroyTimer( "action_"..player:UniqueID() );
 		
 		player:SetSharedVar("startActionTime", 0);
 		player:SetSharedVar("actionDuration", 0);
@@ -181,17 +181,12 @@ function re.player:SetAction(player, action, duration, priority, Callback)
 			player.action = nil;
 		end;
 		
-		openAura:CreateTimer("action_"..player:UniqueID(), duration, 1, function()
+		re._kernel:CreateTimer("action_"..player:UniqueID(), duration, 1, function()
 			if (Callback) then
 				Callback();
 			end;
 		end);
 	end;
-end;
-
--- A function to set the player's character menu state.
-function re.player:SetCharacterMenuState(player, state)
-	openAura:StartDataStream(player, "CharacterMenu", state);
 end;
 
 -- A function to get a player's action.
@@ -214,12 +209,7 @@ end;
 
 -- A function to run a OpenAura command on a player.
 function re.player:RunOpenAuraCommand(player, command, ...)
-	return openAura.command:ConsoleCommand( player, "aura", {command, ...} );
-end;
-
--- A function to get a player's wages name.
-function re.player:GetWagesName(player)
-	return openAura.class:Query( player:Team(), "wagesName", openAura.config:Get("wages_name"):Get() );
+	return re.command:ConsoleCommand( player, "re", {command, ...} );
 end;
 
 -- A function to get whether a player can see an NPC.
@@ -381,7 +371,7 @@ function re.player:SetWeaponRaised(player, raised)
 			player.autoWeaponRaised = weapon:GetClass();
 			player:UpdateWeaponRaised();
 			
-			openAura:CreateTimer("auto_reapon_raised_"..player:UniqueID(), raised, 1, function()
+			re._kernel:CreateTimer("auto_reapon_raised_"..player:UniqueID(), raised, 1, function()
 				if ( IsValid(player) ) then
 					player.autoWeaponRaised = nil;
 					player:UpdateWeaponRaised();
@@ -422,7 +412,7 @@ function re.player:SetupRemovePropertyDelays(player)
 		if (IsValid(v) and removeDelay) then
 			if ( uniqueID == openAura.entity:QueryProperty(v, "uniqueID") ) then
 				if ( key == openAura.entity:QueryProperty(v, "key") ) then
-					openAura:CreateTimer("remove_delay_"..v:EntIndex(), removeDelay, 1, function(entity)
+					re._kernel:CreateTimer("remove_delay_"..v:EntIndex(), removeDelay, 1, function(entity)
 						if ( IsValid(entity) ) then
 							entity:Remove();
 						end;
@@ -459,7 +449,7 @@ end;
 
 -- A function to give property to a player.
 function re.player:GiveProperty(player, entity, networked, removeDelay)
-	openAura:DestroyTimer( "remove_delay_"..entity:EntIndex() );
+	re._kernel:DestroyTimer( "remove_delay_"..entity:EntIndex() );
 	
 	openAura.entity:ClearProperty(entity);
 	
@@ -509,7 +499,7 @@ function re.player:GivePropertyOffline(key, uniqueID, entity, networked, removeD
 		end;
 		
 		if (propertyUniqueID) then
-			openAura:DestroyTimer("remove_delay_"..entity:EntIndex().." "..propertyUniqueID);
+			re._kernel:DestroyTimer("remove_delay_"..entity:EntIndex().." "..propertyUniqueID);
 		end;
 		
 		entity.property = {
@@ -870,7 +860,7 @@ function re.player:SetWhitelisted(player, faction, isWhitelisted)
 		end;
 	end;
 	
-	openAura:StartDataStream( player, "SetWhitelisted", {faction, isWhitelisted} );
+	re._kernel:StartDataStream( player, "SetWhitelisted", {faction, isWhitelisted} );
 end;
 
 -- A function to create a Condition timer.
@@ -888,21 +878,21 @@ function re.player:ConditionTimer(player, delay, Condition, Callback)
 		Condition = Condition
 	};
 	
-	openAura:CreateTimer("condition_timer_"..uniqueID, 0, 0, function()
+	re._kernel:CreateTimer("condition_timer_"..uniqueID, 0, 0, function()
 		if ( IsValid(player) ) then
 			if ( Condition() ) then
 				if (CurTime() >= delay) then
 					Callback(true); player.conditionTimer = nil;
 					
-					openAura:DestroyTimer("condition_timer_"..uniqueID);
+					re._kernel:DestroyTimer("condition_timer_"..uniqueID);
 				end;
 			else
 				Callback(false); player.conditionTimer = nil;
 				
-				openAura:DestroyTimer("condition_timer_"..uniqueID);
+				re._kernel:DestroyTimer("condition_timer_"..uniqueID);
 			end;
 		else
-			openAura:DestroyTimer("condition_timer_"..uniqueID);
+			re._kernel:DestroyTimer("condition_timer_"..uniqueID);
 		end;
 	end);
 end;
@@ -927,7 +917,7 @@ function re.player:EntityConditionTimer(player, target, entity, delay, distance,
 		Condition = Condition
 	};
 	
-	openAura:CreateTimer("Entity condition_timer_"..uniqueID, 0, 0, function()
+	re._kernel:CreateTimer("Entity condition_timer_"..uniqueID, 0, 0, function()
 		if ( IsValid(player) ) then
 			local trace = player:GetEyeTraceNoCursor();
 			
@@ -936,15 +926,15 @@ function re.player:EntityConditionTimer(player, target, entity, delay, distance,
 				if (CurTime() >= delay) then
 					Callback(true); player.entityConditionTimer = nil;
 					
-					openAura:DestroyTimer("Entity condition_timer_"..uniqueID);
+					re._kernel:DestroyTimer("Entity condition_timer_"..uniqueID);
 				end;
 			else
 				Callback(false); player.entityConditionTimer = nil;
 				
-				openAura:DestroyTimer("Entity condition_timer_"..uniqueID);
+				re._kernel:DestroyTimer("Entity condition_timer_"..uniqueID);
 			end;
 		else
-			openAura:DestroyTimer("Entity condition_timer_"..uniqueID);
+			re._kernel:DestroyTimer("Entity condition_timer_"..uniqueID);
 		end;
 	end);
 end;
@@ -1053,7 +1043,7 @@ end;
 
 -- A function to get a player's maximum characters.
 function re.player:GetMaximumCharacters(player)
-	local maximum = openAura.config:Get("additional_characters"):Get();
+	local maximum = re.config:Get("additional_characters"):Get();
 	
 	for k, v in pairs(openAura.faction.stored) do
 		if ( !v.whitelist or self:IsWhitelisted(player, v.name) ) then
@@ -1375,7 +1365,7 @@ end;
 
 -- A function to take a door from a player.
 function re.player:TakeDoor(player, door, force, thisDoorOnly, childrenOnly)
-	local doorCost = openAura.config:Get("door_cost"):Get();
+	local doorCost = re.config:Get("door_cost"):Get();
 	
 	if (!thisDoorOnly) then
 		local doorParent = openAura.entity:GetDoorParent(door);
@@ -1430,7 +1420,7 @@ function re.player:SayRadio(player, text, check, noEavesdrop)
 	if (!info.noEavesdrop) then
 		for k, v in ipairs( _player.GetAll() ) do
 			if ( v:HasInitialized() and !listeners[v] ) then
-				if ( v:GetShootPos():Distance( player:GetShootPos() ) <= openAura.config:Get("talk_radius"):Get() ) then
+				if ( v:GetShootPos():Distance( player:GetShootPos() ) <= re.config:Get("talk_radius"):Get() ) then
 					eavesdroppers[v] = v;
 				end;
 			end;
@@ -1514,7 +1504,7 @@ end;
 function re.player:DoesRecognise(player, target, status, isAccurate)
 	if (!status) then
 		return self:DoesRecognise(player, target, RECOGNISE_PARTIAL);
-	elseif ( openAura.config:Get("recognise_system"):Get() ) then
+	elseif ( re.config:Get("recognise_system"):Get() ) then
 		local recognisedNames = player:QueryCharacter("recognisedNames");
 		local realValue = false;
 		local key = target:QueryCharacter("key");
@@ -1547,7 +1537,7 @@ end;
 
 -- A function to force a player to delete a character.
 function re.player:ForceDeleteCharacter(player, characterID)
-	local charactersTable = openAura.config:Get("mysql_characters_table"):Get();
+	local charactersTable = re.config:Get("mysql_characters_table"):Get();
 	local schemaFolder = openAura:GetSchemaFolder();
 	local character = player.characters[characterID];
 	
@@ -1700,7 +1690,7 @@ function re.player:GetStorageWeight(player)
 	if ( player:GetStorageTable() ) then
 		local inventory = self:QueryStorage(player, "inventory");
 		local cash = self:QueryStorage(player, "cash");
-		local weight = ( cash * openAura.config:Get("cash_weight"):Get() );
+		local weight = ( cash * re.config:Get("cash_weight"):Get() );
 		
 		if ( self:QueryStorage(player, "noCashWeight") ) then
 			weight = 0;
@@ -1729,7 +1719,7 @@ function re.player:OpenStorage(player, data)
 		OnClose(player, storage, storage.entity);
 	end;
 	
-	if ( !openAura.config:Get("cash_enabled"):Get() ) then
+	if ( !re.config:Get("cash_enabled"):Get() ) then
 		data.cash = nil;
 	end;
 	
@@ -1739,7 +1729,7 @@ function re.player:OpenStorage(player, data)
 	
 	data.inventory = data.inventory or {};
 	data.entity = data.entity or player;
-	data.weight = data.weight or openAura.config:Get("default_inv_weight"):Get();
+	data.weight = data.weight or re.config:Get("default_inv_weight"):Get();
 	data.cash = data.cash or 0;
 	data.name = data.name or "Storage";
 	
@@ -1761,7 +1751,7 @@ end;
 
 -- A function to update a player's storage cash.
 function re.player:UpdateStorageCash(player, cash)
-	if ( openAura.config:Get("cash_enabled"):Get() ) then
+	if ( re.config:Get("cash_enabled"):Get() ) then
 		local storageTable = player:GetStorageTable();
 		
 		if (storageTable) then
@@ -1868,7 +1858,7 @@ function re.player:UpdateStorageForPlayer(player, item)
 				end;
 			end;
 		end;
-	elseif ( openAura.config:Get("cash_enabled"):Get() ) then
+	elseif ( re.config:Get("cash_enabled"):Get() ) then
 		for k, v in ipairs( _player.GetAll() ) do
 			if ( v:HasInitialized() ) then
 				if ( v:GetStorageTable() ) then
@@ -1938,7 +1928,7 @@ end;
 -- A function to get a player's unrecognised name.
 function re.player:GetUnrecognisedName(player)
 	local unrecognisedPhysDesc = self:GetPhysDesc(player);
-	local unrecognisedName = openAura.config:Get("unrecognised_name"):Get();
+	local unrecognisedName = re.config:Get("unrecognised_name"):Get();
 	local usedPhysDesc;
 	
 	if (unrecognisedPhysDesc != "") then
@@ -1985,7 +1975,7 @@ function re.player:RestoreRecognisedNames(player)
 	umsg.Start("aura_ClearRecognisedNames", player);
 	umsg.End();
 	
-	if ( openAura.config:Get("save_recognised_names"):Get() ) then
+	if ( re.config:Get("save_recognised_names"):Get() ) then
 		for k, v in ipairs( _player.GetAll() ) do
 			if ( v:HasInitialized() ) then
 				self:RestoreRecognisedName(player, v);
@@ -2002,7 +1992,7 @@ function re.player:SetRecognises(player, target, status, force)
 	local key = target:QueryCharacter("key");
 	
 	if (status == RECOGNISE_SAVE) then
-		if ( openAura.config:Get("save_recognised_names"):Get() ) then
+		if ( re.config:Get("save_recognised_names"):Get() ) then
 			if ( !openAura.plugin:Call("PlayerCanSaveRecognisedName", player, target) ) then
 				status = RECOGNISE_TOTAL;
 			end;
@@ -2033,7 +2023,7 @@ function re.player:GetPhysDesc(player)
 	end;
 	
 	if (physDesc == "") then
-		physDesc = openAura.config:Get("default_physdesc"):Get();
+		physDesc = re.config:Get("default_physdesc"):Get();
 	end;
 	
 	if (!physDesc or physDesc == "") then
@@ -2315,7 +2305,7 @@ end;
 
 -- A function to get a player's cash.
 function re.player:GetCash(player)
-	if ( openAura.config:Get("cash_enabled"):Get() ) then
+	if ( re.config:Get("cash_enabled"):Get() ) then
 		return player:QueryCharacter("cash");
 	else
 		return 0;
@@ -2324,7 +2314,7 @@ end;
 
 -- A function to check if a player can afford an amount.
 function re.player:CanAfford(player, amount)
-	if ( openAura.config:Get("cash_enabled"):Get() ) then
+	if ( re.config:Get("cash_enabled"):Get() ) then
 		return self:GetCash(player) >= amount;
 	else
 		return true;
@@ -2333,7 +2323,7 @@ end;
 
 -- A function to give a player an amount of cash.
 function re.player:GiveCash(player, amount, reason, noMessage)
-	if ( openAura.config:Get("cash_enabled"):Get() ) then
+	if ( re.config:Get("cash_enabled"):Get() ) then
 		local positiveHintColor = "positive_hint";
 		local negativeHintColor = "negative_hint";
 		local roundedAmount = math.Round(amount);
@@ -2368,7 +2358,7 @@ end;
 
 -- A function to show cinematic text to a player.
 function re.player:CinematicText(player, text, color, barLength, hangTime)
-	openAura:StartDataStream( player, "CinematicText", {
+	re._kernel:StartDataStream( player, "CinematicText", {
 		text = text,
 		color = color,
 		barLength = barLength,
@@ -2677,22 +2667,22 @@ end;
 function re.player:DoRagdollDecayCheck(player, ragdoll)
 	local index = ragdoll:EntIndex();
 	
-	openAura:CreateTimer("decay_check_"..index, 60, 0, function()
+	re._kernel:CreateTimer("decay_check_"..index, 60, 0, function()
 		local ragdollIsValid = IsValid(ragdoll);
 		local playerIsValid = IsValid(player);
 		
 		if (!playerIsValid and ragdollIsValid) then
 			if ( !openAura.entity:IsDecaying(ragdoll) ) then
-				local decayTime = openAura.config:Get("body_decay_time"):Get();
+				local decayTime = re.config:Get("body_decay_time"):Get();
 				
 				if ( decayTime > 0 and openAura.plugin:Call("PlayerCanRagdollDecay", player, ragdoll, decayTime) ) then
 					openAura.entity:Decay(ragdoll, decayTime);
 				end;
 			else
-				openAura:DestroyTimer("decay_check_"..index);
+				re._kernel:DestroyTimer("decay_check_"..index);
 			end;
 		elseif (!ragdollIsValid) then
-			openAura:DestroyTimer("decay_check_"..index);
+			re._kernel:DestroyTimer("decay_check_"..index);
 		end;
 	end);
 end;
@@ -2734,7 +2724,7 @@ function re.player:SetRagdollState(player, state, delay, decay, force, multiplie
 			
 			player.ragdollTable = {};
 			player.ragdollTable.eyeAngles = player:EyeAngles();
-			player.ragdollTable.immunity = CurTime() + openAura.config:Get("ragdoll_immunity_time"):Get();
+			player.ragdollTable.immunity = CurTime() + re.config:Get("ragdoll_immunity_time"):Get();
 			player.ragdollTable.moveType = MOVETYPE_WALK;
 			player.ragdollTable.entity = ragdoll;
 			player.ragdollTable.health = player:Health();
@@ -2862,7 +2852,7 @@ function re.player:SetRagdollState(player, state, delay, decay, force, multiplie
 				end;
 				
 				if ( IsValid(ragdollTable.entity) ) then
-					openAura:DestroyTimer( "decay_check_"..ragdollTable.entity:EntIndex() );
+					re._kernel:DestroyTimer( "decay_check_"..ragdollTable.entity:EntIndex() );
 					
 					if (ragdollTable.decay) then
 						if ( openAura.plugin:Call("PlayerCanRagdollDecay", player, ragdollTable.entity, ragdollTable.decay) ) then
@@ -3045,7 +3035,7 @@ end;
 -- A function to get a player's characters.
 function re.player:GetCharacters(player, Callback)
 	if ( IsValid(player) ) then
-		local charactersTable = openAura.config:Get("mysql_characters_table"):Get();
+		local charactersTable = re.config:Get("mysql_characters_table"):Get();
 		local schemaFolder = openAura:GetSchemaFolder();
 		local characters = {};
 		
@@ -3089,7 +3079,7 @@ function re.player:CharacterScreenAdd(player, character)
 	
 	openAura.plugin:Call("PlayerAdjustCharacterScreenInfo", player, character, info);
 	
-	openAura:StartDataStream(player, "CharacterAdd", info);
+	re._kernel:StartDataStream(player, "CharacterAdd", info);
 end;
 
 -- A function to convert a character's MySQL variables to Lua variables.
@@ -3127,7 +3117,7 @@ function re.player:LoadCharacter(player, characterID, mergeCreate, Callback, for
 		character.name = name;
 		character.data = {};
 		character.ammo = {};
-		character.cash = openAura.config:Get("default_cash"):Get();
+		character.cash = re.config:Get("default_cash"):Get();
 		character.model = "models/police.mdl";
 		character.flags = "b";
 		character.schema = openAura:GetSchemaFolder();
@@ -3339,18 +3329,18 @@ end;
 -- A function to load a player's data.
 function re.player:LoadData(player, Callback)
 	if (!openAura.AddedDonationsRow) then
-		tmysql.query("ALTER TABLE "..openAura.config:Get("mysql_players_table"):Get().." ADD _Donations TEXT AFTER _SteamID");
+		tmysql.query("ALTER TABLE "..re.config:Get("mysql_players_table"):Get().." ADD _Donations TEXT AFTER _SteamID");
 		openAura.AddedDonationsRow = true;
 	end;
 	
-	local playersTable = openAura.config:Get("mysql_players_table"):Get();
+	local playersTable = re.config:Get("mysql_players_table"):Get();
 	local schemaFolder = openAura:GetSchemaFolder();
 	local unixTime = os.time();
 	local steamID = player:SteamID();
 	
 	tmysql.query("SELECT * FROM "..playersTable.." WHERE _Schema = \""..schemaFolder.."\" AND _SteamID = \""..steamID.."\"", function(result)
 		if (IsValid(player) and !player.data) then
-			local ownerSteamID = openAura.config:Get("owner_steamid"):Get();
+			local ownerSteamID = re.config:Get("owner_steamid"):Get();
 			local onNextPlay = "";
 			
 			if (result and type(result) == "table" and #result > 0) then
@@ -3385,7 +3375,7 @@ function re.player:LoadData(player, Callback)
 			end;
 			
 			if (player.userGroup != "user") then
-				if ( !openAura.config:Get("use_own_group_system"):Get() ) then
+				if ( !re.config:Get("use_own_group_system"):Get() ) then
 					player:SetUserGroup(player.userGroup);
 				end;
 			end;
@@ -3446,7 +3436,7 @@ end;
 
 -- A function to get the create query of a player's data.
 function re.player:GetDataCreateQuery(player)
-	local playersTable = openAura.config:Get("mysql_players_table"):Get();
+	local playersTable = re.config:Get("mysql_players_table"):Get();
 	local schemaFolder = openAura:GetSchemaFolder();
 	local steamName = tmysql.escape( player:SteamName() );
 	local ipAddress = player:IPAddress();
@@ -3472,7 +3462,7 @@ function re.player:GetDataUpdateQuery(player)
 	
 	openAura.plugin:Call("PlayerSaveData", player, data);
 	
-	local playersTable = openAura.config:Get("mysql_players_table"):Get();
+	local playersTable = re.config:Get("mysql_players_table"):Get();
 	local unixTime = os.time();
 	local query = "UPDATE "..playersTable.." SET _Data = \""..tmysql.escape( Json.Encode(data) ).."\",";
 	
@@ -3484,7 +3474,7 @@ end;
 
 -- A function to get the create query of a character.
 function re.player:GetCharacterCreateQuery(player, character)
-	local charactersTable = openAura.config:Get("mysql_characters_table"):Get();
+	local charactersTable = re.config:Get("mysql_characters_table"):Get();
 	local values = "";
 	local amount = 1;
 	local keys = "";
@@ -3533,7 +3523,7 @@ end;
 -- A function to get the update query of a character.
 function re.player:GetCharacterUpdateQuery(player, character)
 	local currentCharacter = player:GetCharacter();
-	local charactersTable = openAura.config:Get("mysql_characters_table"):Get();
+	local charactersTable = re.config:Get("mysql_characters_table"):Get();
 	local schemaFolder = openAura:GetSchemaFolder();
 	local unixTime = os.time();
 	local steamID = player:SteamID();
@@ -3631,7 +3621,7 @@ end;
 
 -- A function to call a player's think hook.
 function re.player:CallThinkHook(player, setSharedVars, infoTable, curTime)
-	infoTable.inventoryWeight = openAura.config:Get("default_inv_weight"):Get();
+	infoTable.inventoryWeight = re.config:Get("default_inv_weight"):Get();
 	infoTable.crouchedSpeed = player.crouchedSpeed;
 	infoTable.jumpPower = player.jumpPower;
 	infoTable.walkSpeed = player.walkSpeed;

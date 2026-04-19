@@ -9,8 +9,40 @@ local includeFunc = include
 local addCSLua = AddCSLuaFile
 local SERVER = SERVER
 local CLIENT = CLIENT
+local playerMeta = FindMetaTable('Player')
+		
+function playerMeta:SetNetVar(key, value)
+    local valueType = type(value)
 
+    if valueType == "boolean" then
+        self:SetNWBool(key, value)
+    elseif valueType == "number" then
+        if math.floor(value) == value then
+            self:SetNWInt(key, value)
+        else
+            self:SetNWFloat(key, value)
+        end
+    elseif valueType == "string" then
+        self:SetNWString(key, value)
+    elseif valueType == "Vector" then
+        self:SetNWVector(key, value)
+    elseif valueType == "Angle" then
+        self:SetNWAngle(key, value)
+    elseif valueType == "Entity" and IsValid(value) then
+        self:SetNWEntity(key, value)
+    else
+        error("SetNetVar: Unsupported type " .. valueType)
+    end
+end
 
+function playerMeta:SetSharedVar(key, value)
+	return self:SetNetVar(key, value)
+end
+
+function playerMeta:GetSharedVar(key, default)
+    local val = self:GetNWString(key, nil)
+    return val or default
+end
 
 function re._kernel:UnpackColor(color)
 	return color.r, color.g, color.b, color.a
@@ -310,7 +342,7 @@ if SERVER then
 			end;
 		end;
 		
-		local encodedData = glon.encode(data);
+		local encodedData = rec.decode(data);
 		local splitTable = self:SplitString(encodedData, 128);
 		local players = RecipientFilter();
 		
@@ -370,4 +402,17 @@ if SERVER then
 			self:ServerLog(text)
 		end
 	end
+else
+    function re._kernel:StartDataStream(name, data)
+		local encodedData = rec.decode(data);
+		local splitTable = self:SplitString(string.gsub(string.gsub(encodedData, "\\", "\\\\"), "\n", "\\n"), 128);
+		
+		if (#splitTable > 0) then
+			RunConsoleCommand( "aura_dsStart", name, tostring(#splitTable) );
+			
+			for k, v in ipairs(splitTable) do
+				RunConsoleCommand( "aura_dsData", v, tostring(k) );
+			end;
+		end;
+	end;
 end
