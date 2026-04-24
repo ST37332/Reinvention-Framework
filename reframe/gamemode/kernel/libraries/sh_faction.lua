@@ -2,6 +2,27 @@ re.FACTION = re.FACTION or {}
 re.FACTION.List = {}            
 re.FACTION.DefaultID = nil
 
+/*
+    EXAMPLES
+
+re.FACTION:Register({
+  uniqueID    = "citizen",
+  name        = L"jobs.name.citizen",
+  description = L"jobs.desc.citizen",
+  color       = Color(100, 200, 100),
+  model       = "models/player/group01/male_01.mdl",
+  default     = true
+})
+
+re.FACTION:Register({
+  uniqueID    = "police",
+  name        = L"jobs.name.police",
+  description = L"jobs.desc.police",
+  color       = Color(50, 50, 200),
+  model       = "models/player/combine_soldier.mdl"
+})
+*/
+
 function re.FACTION:Register(tbl)
     if not istable(tbl) then
         ErrorNoHalt("[FACTION] Attempt to register a non-table!\n")
@@ -108,5 +129,86 @@ if SERVER then
                 if v.GetColor then v:SetColor(fac.color) end
             end
         end
+    end)
+else
+    concommand.Add("faction_menu", function()
+        if not LocalPlayer():Alive() then
+            chat.AddText(Color(255,100,100), "Вы должны быть живы, чтобы сменить фракцию.")
+            return
+        end
+        CreateFactionMenu()
+    end)
+    
+    function CreateFactionMenu()
+        if IsValid(FactionFrame) then FactionFrame:Remove() end
+    
+        local frame = vgui.Create("DFrame")
+        frame:SetSize(400, 300)
+        frame:Center()
+        frame:SetTitle("Выбор фракции")
+        frame:MakePopup()
+        frame.Paint = function(self, w, h)
+            draw.RoundedBox(8, 0, 0, w, h, Color(30,30,30,240))
+        end
+        FactionFrame = frame
+    
+        local scroll = vgui.Create("DScrollPanel", frame)
+        scroll:Dock(FILL)
+        scroll:DockMargin(10,10,10,10)
+    
+        local currentFaction = LocalPlayer():GetNWString("faction", "")
+        local factions = re.FACTION:GetAll()
+    
+        local title = vgui.Create("DLabel", scroll)
+        title:SetText("Доступные фракции:")
+        title:SetTextColor(Color(255,255,255))
+        title:SizeToContents()
+        scroll:AddItem(title)
+    
+        for id, fac in SortedPairsByMemberValue(factions, "name") do
+            local panel = vgui.Create("DButton", scroll)
+            panel:SetTall(40)
+            panel:Dock(TOP)
+            panel:DockMargin(0,2,0,2)
+            panel:SetText("")
+        
+            local isCurrent = (id == currentFaction)
+        
+            panel.Paint = function(self, w, h)
+                local bgColor = isCurrent and Color(60, 60, 60, 200) or Color(50,50,50,200)
+                if self:IsHovered() then bgColor = Color(80,80,80,200) end
+                draw.RoundedBox(4, 0, 0, w, h, bgColor)
+            
+                draw.RoundedBox(0, 0, 0, 4, h, fac.color)
+            
+                draw.DrawText(fac.name, "DermaDefault", 12, 8, fac.color, TEXT_ALIGN_LEFT)
+            
+                if isCurrent then
+                    draw.DrawText("[Выбрана]", "DermaDefault", w-10, 8, Color(150,255,150), TEXT_ALIGN_RIGHT)
+                end
+            
+                if fac.default then
+                    draw.DrawText("⚙ По умолчанию", "DermaDefault", 12, 22, Color(200,200,100), TEXT_ALIGN_LEFT)
+                end
+            end
+        
+            panel.DoClick = function()
+                net.Start("FactionChangeRequest")
+                    net.WriteString(id)
+                net.SendToServer()
+                frame:Remove()
+            end
+        
+            scroll:AddItem(panel)
+        end
+    
+        local closeBtn = vgui.Create("DButton", frame)
+        closeBtn:SetSize(100, 25)
+        closeBtn:SetPos(150, 270)
+        closeBtn:SetText("Закрыть")
+        closeBtn.DoClick = function() frame:Remove() end
+    end
+    
+    hook.Add("PlayerBindPress", "Faction.MenuBind", function(ply, bind)
     end)
 end
