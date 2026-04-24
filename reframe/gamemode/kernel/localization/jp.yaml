@@ -1,0 +1,17 @@
+ui:
+  close: "閉じる"
+  play: "プレイ"
+  quit: "終了"
+faction:
+  choosed: "[選択済み]"
+  choosing: "陣営を選択中"
+  avilable: "利用可能な陣営："
+  notify: 
+    alive: '陣営を変更するには生きている必要があります。'
+    become: 'あなたは次のようになりました：'
+    received: "{player} に陣営が割り当てられました: {faction}"
+    err_rec: "{player} には陣営がありません: デフォルトなし！"
+misc:
+  default: "⚙ デフォルト"
+  error: "[エラー] {error}"
+## greeting: "ようこそ、{player}！"
