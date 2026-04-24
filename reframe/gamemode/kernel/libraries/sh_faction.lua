@@ -89,9 +89,9 @@ if SERVER then
         if not ply:GetNWString("faction", nil) or ply:GetNWString("faction", "") == "" then
             if re.FACTION.DefaultID then
                 ply:SetNWString("faction", re.FACTION.DefaultID)
-                print(ply:Nick() .. " automatically received a faction: " .. re.FACTION.DefaultID)
+                print(L('faction.notify.received', {player = ply:Nick(), faction = re.FACTION.DefaultID}))
             else
-                print(ply:Nick() .. " did not receive a faction: no default!")
+                print(L('faction.notify.err_rec', {player = ply:Nick()}))
             end
         end
     end)
@@ -102,13 +102,13 @@ if SERVER then
         local requestedID = net.ReadString()
         local fac = re.FACTION:Get(requestedID)
         if not fac then
-            ply:ChatPrint("[Error] There is no such faction.")
+            ply:ChatPrint(L("misc.error", {error = "There is no such faction."}))
             return
         end
     
         
         ply:SetNWString("faction", requestedID)
-        ply:ChatPrint("You have become: " .. fac.name)
+        ply:ChatPrint(L"faction.become" .. fac.name)
     
         ply:KillSilent()
     end)
@@ -133,82 +133,82 @@ if SERVER then
 else
     concommand.Add("faction_menu", function()
         if not LocalPlayer():Alive() then
-            chat.AddText(Color(255,100,100), "Вы должны быть живы, чтобы сменить фракцию.")
+            chat.AddText(Color(255,100,100), L"faction.notify.alive")
             return
         end
         CreateFactionMenu()
     end)
-    
+
     function CreateFactionMenu()
         if IsValid(FactionFrame) then FactionFrame:Remove() end
-    
+
         local frame = vgui.Create("DFrame")
         frame:SetSize(400, 300)
         frame:Center()
-        frame:SetTitle("Выбор фракции")
+        frame:SetTitle(L"faction.choosing")
         frame:MakePopup()
         frame.Paint = function(self, w, h)
             draw.RoundedBox(8, 0, 0, w, h, Color(30,30,30,240))
         end
         FactionFrame = frame
-    
+
         local scroll = vgui.Create("DScrollPanel", frame)
         scroll:Dock(FILL)
         scroll:DockMargin(10,10,10,10)
-    
+
         local currentFaction = LocalPlayer():GetNWString("faction", "")
         local factions = re.FACTION:GetAll()
-    
+
         local title = vgui.Create("DLabel", scroll)
-        title:SetText("Доступные фракции:")
+        title:SetText(L"faction.avilable")
         title:SetTextColor(Color(255,255,255))
         title:SizeToContents()
         scroll:AddItem(title)
-    
+
         for id, fac in SortedPairsByMemberValue(factions, "name") do
             local panel = vgui.Create("DButton", scroll)
             panel:SetTall(40)
             panel:Dock(TOP)
             panel:DockMargin(0,2,0,2)
             panel:SetText("")
-        
+
             local isCurrent = (id == currentFaction)
-        
+
             panel.Paint = function(self, w, h)
                 local bgColor = isCurrent and Color(60, 60, 60, 200) or Color(50,50,50,200)
                 if self:IsHovered() then bgColor = Color(80,80,80,200) end
                 draw.RoundedBox(4, 0, 0, w, h, bgColor)
-            
+
                 draw.RoundedBox(0, 0, 0, 4, h, fac.color)
-            
+
                 draw.DrawText(fac.name, "DermaDefault", 12, 8, fac.color, TEXT_ALIGN_LEFT)
-            
+
                 if isCurrent then
-                    draw.DrawText("[Выбрана]", "DermaDefault", w-10, 8, Color(150,255,150), TEXT_ALIGN_RIGHT)
+                    draw.DrawText(L"faction.choosed", "DermaDefault", w-10, 8, Color(150,255,150), TEXT_ALIGN_RIGHT)
                 end
-            
+
                 if fac.default then
-                    draw.DrawText("⚙ По умолчанию", "DermaDefault", 12, 22, Color(200,200,100), TEXT_ALIGN_LEFT)
+                    draw.DrawText(L"misc.default", "DermaDefault", 12, 22, Color(200,200,100), TEXT_ALIGN_LEFT)
                 end
             end
-        
+
             panel.DoClick = function()
                 net.Start("FactionChangeRequest")
                     net.WriteString(id)
                 net.SendToServer()
                 frame:Remove()
             end
-        
+
             scroll:AddItem(panel)
         end
-    
+
         local closeBtn = vgui.Create("DButton", frame)
         closeBtn:SetSize(100, 25)
         closeBtn:SetPos(150, 270)
-        closeBtn:SetText("Закрыть")
+        closeBtn:SetText(L"ui.close")
         closeBtn.DoClick = function() frame:Remove() end
     end
-    
+
     hook.Add("PlayerBindPress", "Faction.MenuBind", function(ply, bind)
     end)
 end
