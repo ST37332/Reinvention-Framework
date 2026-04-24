@@ -1,0 +1,17 @@
+ui:
+  close: "Закрити"
+  play: "Грати"
+  quit: "Вихід"
+faction:
+  choosed: "[Вибрано]"
+  choosing: "Вибір фракції"
+  avilable: "Доступні фракції:"
+  notify: 
+    alive: 'Ви повинні бути живі, щоб змінити фракцію'
+    become: 'Отже ти став: '
+    received: "{player} видано фракцію: {faction}"
+    err_rec: "{player} не видано фракцію: немає default!
+misc:
+  default: "⚙ За замовчуванням"
+  error: "[Помилка] {error}"
+## greeting: "Ласкаво просимо, {player}!"
