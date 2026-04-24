@@ -1,5 +1,17 @@
 ui:
-  title: "Моя Игра"
+  close: "Закрыть"
   play: "Играть"
   quit: "Выход"
-greeting: "Добро пожаловать, {player}!"
+faction:
+  choosed: "[Выбрана]"
+  choosing: "Выбор фракции"
+  avilable: "Доступные фракции:"
+  notify: 
+    alive: 'Вы должны быть живы, чтобы сменить фракцию'
+    become: 'Вы стали: '
+    received: "{player} выдана фракция: {faction}"
+    err_rec: "{player} не выдана фракция: нету default!
+misc:
+  default: "⚙ По умолчанию"
+  error: "[Ошибка] {error}"
+## greeting: "Добро пожаловать, {player}!"
