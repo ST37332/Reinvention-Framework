@@ -1,0 +1,17 @@
+ui:
+  close: "Зачанить"
+  play: "Гуляць"
+  quit: "Выхад"
+faction:
+  choosed: "[Выбрана]"
+  choosing: "Выбар фракцыі"
+  avilable: "Доступныя фракцыі:"
+  notify: 
+    alive: 'Вы павінны быць жывыя, каб змянiть фракцыю'
+    become: 'Вы стали: '
+    received: "{player} выдана фракцыя: {faction}"
+    err_rec: "{player} не выдана фракция: няма default!
+misc:
+  default: "⚙ Па змаўчанні"
+  error: "[Памылка] {error}"
+## greeting: "Сардэчна запрашаем, {player}!"
