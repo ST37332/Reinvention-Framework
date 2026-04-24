@@ -1,0 +1,17 @@
+ui:
+  close: "إغلاق"
+  play: "لعب"
+  quit: "خروج"
+faction:
+  choosed: "[مختار]"
+  choosing: "اختيار فصيل"
+  avilable: "الفصائل المتاحة:"
+  notify: 
+    alive: 'يجب أن تكون على قيد الحياة لتغيير الفصائل.'
+    become: 'لقد أصبحت: '
+    received: "تم تعيين {player} للفصيل: {faction}"
+    err_rec: "{player} لا يملك فصيلًا: لا افتراضي!"
+misc:
+  default: "⚙ افتراضي"
+  error: "[خطأ] {error}"
+## greeting: "مرحبًا، {player}!"
