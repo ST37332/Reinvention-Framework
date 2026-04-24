@@ -1,0 +1,17 @@
+ui:
+  close: "关闭"
+  play: "开始"
+  quit: "退出"
+faction:
+  choosed: "[已选择]"
+  choosing: "选择阵营"
+  avilable: "可用阵营："
+  notify: 
+    alive: '你必须活着才能更换阵营。'
+    become: '你已成为：'
+    received: "{player} 已被分配阵营：{faction}"
+    err_rec: "{player} 没有阵营：无默认！"
+misc:
+  default: "⚙ 默认"
+  error: "[错误] {error}"
+## greeting: "欢迎，{player}！"
