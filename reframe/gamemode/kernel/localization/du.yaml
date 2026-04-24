@@ -1,0 +1,17 @@
+ui:
+  close: "Schließen"
+  play: "Spielen"
+  quit: "Beenden"
+faction:
+  choosed: "[Ausgewählt]"
+  choosing: "Fraktion wählen"
+  avilable: "Verfügbare Fraktionen:"
+  notify: 
+    alive: 'Du musst am Leben sein, um die Fraktion zu wechseln.'
+    become: 'Du bist geworden: '
+    received: "{player} wurde der Fraktion zugewiesen: {faction}"
+    err_rec: "{player} hat keine Fraktion: kein Standard!"
+misc:
+  default: "⚙ Standard"
+  error: "[Fehler] {error}"
+## greeting: "Willkommen, {player}!"
