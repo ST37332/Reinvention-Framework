@@ -14,4 +14,6 @@ faction:
 misc:
   default: "⚙ 默认"
   error: "[错误] {error}"
+item:
+  baseitem: "基本项目"
 ## greeting: "欢迎，{player}！"

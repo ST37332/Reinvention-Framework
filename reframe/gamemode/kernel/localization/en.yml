@@ -14,4 +14,6 @@ faction:
 misc:
   default: "⚙ Default"
   error: "[Error] {error}"
+item:
+  baseitem: "Base item"
 ## greeting: "Welcome, {player}!"

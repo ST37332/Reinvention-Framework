@@ -14,4 +14,6 @@ faction:
 misc:
   default: "⚙ 기본값"
   error: "[오류] {error}"
+item:
+  baseitem: "기본 항목"
 ## greeting: "환영합니다, {player}님!"

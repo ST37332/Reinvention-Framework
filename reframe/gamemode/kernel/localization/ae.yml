@@ -14,4 +14,6 @@ faction:
 misc:
   default: "⚙ افتراضي"
   error: "[خطأ] {error}"
+item:
+  baseitem: "الموضوع الأساسي"
 ## greeting: "مرحبًا، {player}!"
