@@ -1,4 +1,5 @@
 /sandbox
 /base
 /rhl2rp
-/skeleton
+skeleton
+*.disabled

@@ -1,3 +1,7 @@
+function re:ShouldDrawPlayerTargetID(player)
+	return true;
+end;
+
 function re:OverrideMainFont(font)
 	if (font) then
 		if (!self.PreviousMainFont) then
@@ -32,7 +36,7 @@ function re:GetCachedTextSize(font, text)
 	return unpack( self.CachedTextSizes[font][text] );
 end;
 
-function openAura:CalculateAlphaFromDistance(maximum, start, finish)
+function re:CalculateAlphaFromDistance(maximum, start, finish)
 	if (type(start) == "Player") then
 		start = start:GetShootPos();
 	elseif (type(start) == "Entity") then
@@ -146,7 +150,7 @@ function re:HUDDrawTargetID()
 				self.TargetIDData.class = class;
 				
 				if (entity and self.Client != entity) then
-					if ( self.plugin:Call("ShouldDrawPlayerTargetID", entity) ) then
+					if ( self._kernel:Call("ShouldDrawPlayerTargetID", entity) ) then
 						if ( !self.player:IsNoClipping(entity) ) then
 							if (self.Client:GetShootPos():Distance(trace.HitPos) <= fadeDistance) then
 								if (self.nextCheckRecognises and self.nextCheckRecognises[2] != entity) then
@@ -223,7 +227,7 @@ function re:HUDDrawTargetID()
 								
 								if (!self.nextCheckRecognises or curTime >= self.nextCheckRecognises[1]
 								or self.nextCheckRecognises[2] != entity) then
-									self:StartDataStream("GetTargetRecognises", entity);
+									self._kernel:StartDataStream("GetTargetRecognises", entity);
 									
 									self.nextCheckRecognises = {curTime + 2, entity};
 								end;

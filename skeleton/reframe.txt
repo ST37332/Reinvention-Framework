@@ -1,7 +1,0 @@
-"Re: Skeleton"
-{
-	"base" 			"reframe"
-	"title" 		"Re: Skeleton"
-	"author" 		"MrMono"
-	"menusystem"	"1"
-}
