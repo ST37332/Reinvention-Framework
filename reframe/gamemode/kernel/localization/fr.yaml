@@ -1,0 +1,17 @@
+ui:
+  close: "Fermer"
+  play: "Jouer"
+  quit: "Quitter"
+faction:
+  choosed: "[Choisi]"
+  choosing: "Choisir une faction"
+  avilable: "Factions disponibles :"
+  notify: 
+    alive: 'Vous devez être en vie pour changer de faction.'
+    become: 'Vous êtes devenu : '
+    received: "{player} a été assigné(e) à la faction : {faction}"
+    err_rec: "{player} n'a pas de faction : pas de défaut !"
+misc:
+  default: "⚙ Défaut"
+  error: "[Erreur] {error}"
+## greeting: "Bienvenue, {player}!"
