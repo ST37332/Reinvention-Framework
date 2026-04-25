@@ -5,6 +5,7 @@ re = {
     _kernel = {},
     base = {},
     net = {},
+    hash = {},
     basedir = GM.FolderName .. "/gamemode/"
 }
 
