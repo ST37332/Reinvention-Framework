@@ -44,6 +44,38 @@ function playerMeta:GetSharedVar(key, default)
     return val or default
 end
 
+function re:GetLogTypeColor(logType)
+	local logTypes = {
+		Color(255, 50, 50, 255),
+		Color(255, 150, 0, 255),
+		Color(255, 200, 0, 255),
+		Color(0, 150, 255, 255),
+		Color(0, 255, 125, 255)
+	};
+	
+	return logTypes[logType] or logTypes[5];
+end;
+
+function re:GetCoreVersion()
+	return self.CoreVersion;
+end;
+
+function re:GetBaseFolder()
+	local folder = string.gsub(self.BaseFolder, "gamemodes/", "");
+	
+	if (folder) then
+		return folder;
+	end;
+end;
+
+function re:GetSchemaFolder()
+	local folder = string.gsub(self.SchemaFolder, "gamemodes/", "");
+	
+	if (folder) then
+		return folder;
+	end;
+end;
+
 function re._kernel:UnpackColor(color)
 	return color.r, color.g, color.b, color.a
 end
